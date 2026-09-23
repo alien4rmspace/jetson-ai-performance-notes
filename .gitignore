@@ -1,0 +1,11 @@
+# Local configuration and generated device artifacts
+.env
+.env.*
+*.engine
+*.onnx
+*.pt
+*.gguf
+*.task
+*.cache
+*.log
+__pycache__/
