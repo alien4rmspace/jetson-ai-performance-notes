@@ -15,7 +15,7 @@ This repository is my performance engineering portfolio: the results and decisio
 
 ## TensorRT optimization level 3 vs 5
 
-I built FP16-capable YOLO26s pose and detector plans on the same Orin Nano with TensorRT 10.16.2, then benchmarked each plan with `trtexec` for 10 seconds after a 1-second warm-up. Build time is a one-time cost; the other columns measure isolated engine inference.
+I created a benchmarking script that automatically builds and compares FP16-capable YOLO26s pose and detector TensorRT plans across builder optimization levels. On the same Orin Nano with TensorRT 10.16.2, the script built level 3 and level 5 plans, ran each through trtexec for 10 seconds after a 1-second warm-up, collected latency and throughput metrics, and selected the faster plans locally. Build time is a one-time cost; the other columns measure isolated engine inference.
 
 | Model | Level | Throughput (qps) | Mean latency (ms) | GPU mean / p99 (ms) | Build time (s) |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -24,7 +24,7 @@ I built FP16-capable YOLO26s pose and detector plans on the same Orin Nano with 
 | Detector | 3 | 155.401 | 6.824 | 6.429 / 6.714 | 38.34 |
 | Detector | **5** | **169.218** | **6.312** | **5.904 / 6.184** | 175.52 |
 
-Level 5 improved throughput by **6.9% for pose** and **8.9% for detection** in these runs, at roughly 2.5× and 4.6× the build time. Both level 5 plans were selected locally. The [full benchmark note](notes/tensorrt-builder-comparison.md) records the configuration and limits.
+Level 5 increased throughput by 6.9% for pose (146.8 → 157.0 qps) while reducing mean latency by 0.407 ms (5.7%). For detection, throughput increased by 8.9% (155.4 → 169.2 qps) while mean latency decreased by 0.512 ms (7.5%). GPU mean inference time improved by 0.440 ms (6.5%) for pose and 0.525 ms (8.2%) for detection. These gains came at approximately 2.5× and 4.6× longer one-time build times, respectively. Both level 5 plans were selected by the comparison script. The [full benchmark note](notes/tensorrt-builder-comparison.md) records the configuration and limits.
 
 ## System and engineering decisions
 
