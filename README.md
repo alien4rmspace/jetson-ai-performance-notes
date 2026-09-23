@@ -1,30 +1,32 @@
-# Jetson AI performance notes
+# Optimizing real-time AI on Jetson Orin Nano
 
-Measured optimization work from a camera, computer-vision, and local-LLM stack on an NVIDIA Jetson Orin Nano. This repository is a public portfolio record of the experiments, including changes that helped, tradeoffs, and failures that informed later designs.
+I profiled and optimized a live camera, computer-vision, and local-LLM stack on an NVIDIA Jetson Orin Nano. Moving YOLOv8n inference from CPU to TensorRT FP16 raised the measured camera stream from **8.5 to 30.0 FPS** (the camera's 30 FPS limit). Later work moved detection and pose into DeepStream, reduced browser-frame CPU work, and isolated local Qwen inference from the video process.
 
-The measurements are from a single device and workload. Stream FPS includes camera capture, inference, hand and pose processing, overlays, and encoding where those stages were enabled. TensorRT `trtexec` numbers measure an engine in isolation; they are not end-to-end stream FPS. Many experiments were short operational samples rather than repeated controlled trials, so the notes identify the test context instead of treating every difference as a general speedup.
+This repository is my performance engineering portfolio: the results and decisions are here in the README; the linked notes preserve the measurements and failure investigations behind them.
 
-## Results at a glance
+## Measured results
 
-| Experiment | Observation | What changed |
+| Problem | Change I made | Observed result |
 | --- | --- | --- |
-| YOLOv8n stream inference | 8.5 FPS on CPU, 23.7 FPS on PyTorch CUDA, 30.0 FPS on TensorRT FP16 | Moved inference to the Orin GPU, then exported an FP16 engine. The 30 FPS camera ceiling limits the measured stream speedup. |
-| Browser frame preparation | 3.10 ms to 1.61 ms for CPU frame mapping/color preparation | Negotiated BGR output with GPU `nvvideoconvert`, removing a CPU `cv2.cvtColor` step. This shifted work toward the GPU. |
-| Local Qwen one-shot response | 14–18 s to 6.44 s for one conversational prompt; 14.3 s to 4.52 s for one command prompt | Built `llama-cpp-python` with CUDA and offloaded supported model layers. These are prompt samples, not a latency distribution. |
-| TensorRT builder level, pose | 146.8 to 157.0 queries/s, level 3 to 5 | Same FP16 ONNX model, Orin, TensorRT 10.16.2, and 10-second `trtexec` benchmark. |
-| TensorRT builder level, detector | 155.4 to 169.2 queries/s, level 3 to 5 | Same comparison protocol; level 5 also took longer to build. |
+| CPU inference limited the YOLOv8n stream | Moved inference to PyTorch CUDA, then exported a TensorRT FP16 engine | **8.5 → 23.7 → 30.0 FPS** in the application stream; 30 FPS was the camera ceiling. |
+| CPU color conversion added cost to the browser/hand path | Negotiated BGR output through GPU `nvvideoconvert` and removed `cv2.cvtColor` | **3.10 → 1.61 ms** for CPU frame mapping/color preparation in short live samples. |
+| TensorRT builder settings had an unknown payoff | Built separate YOLO26s detector and pose plans at optimization levels 3 and 5, then benchmarked each | Level 5 gave **+8.9% detector** and **+6.9% pose** throughput in isolated 10-second `trtexec` runs. |
+| CPU-only local Qwen responses were slow | Built `llama-cpp-python` with CUDA and offloaded supported layers | One command prompt fell from **14.3 → 4.52 s**; a conversational sample fell from **14–18 → 6.44 s**. |
 
-The detailed [case studies](notes/case-studies.md) explain the system-level work. The [TensorRT builder comparison](notes/tensorrt-builder-comparison.md) records the September 2026 experiment. The [sanitized field log](notes/field-log.md) preserves the May experiments, and the [later stream log](notes/recent-stream-log.md) covers May–August stability work. Older commands in these logs document experiments and may no longer match the current application.
+## System and engineering decisions
 
-## Test platform
+The production path grew from a Python YOLO camera stream into **CSI camera → Argus/GStreamer → DeepStream YOLO26s detection and pose → hand-gesture worker → browser MJPEG**. I decoupled browser publication from camera/inference cadence, removed a JPEG encode/decode round trip before CPU hand processing, and used a secondary DeepStream pose engine on person regions. I kept MediaPipe for hands when it recognized closed-fist gestures more reliably than a lower-CPU TensorRT hand path.
 
-- NVIDIA Jetson Orin Nano developer kit, 8 GB class, Ampere GPU (compute capability 8.7).
-- CSI camera through Argus/GStreamer; later pipeline uses DeepStream for detection and pose, MediaPipe for hand gestures, and an HTTP MJPEG browser stream.
-- YOLO models exported to ONNX and TensorRT FP16. Local Qwen inference uses `llama.cpp` through `llama-cpp-python`.
-- Power mode and clocks affect results. Where recorded, the experiments used `MAXN_SUPER` and `jetson_clocks`; the isolated TensorRT comparison was run on the same device with the same benchmark flags for both builder levels. Actual instantaneous clocks were not logged for every comparison.
+An intermittent video crash was a separate performance and reliability problem. I correlated DeepStream buffer-copy failures with kernel GPU MMU faults and CUDA error 700. Rebuilding the TensorRT engines fixed a device/profile warning but did **not** stop the crash. On the JetPack 6.2 / DeepStream 7.1 stack, switching the affected `nvvideoconvert` copies to VIC (`copy-hw=2`) addressed the observed failure; the stream held about 30 FPS through the recorded validation window. That workaround is specific to the older stack, not a blanket recommendation for every Jetson setup.
 
-## Reading the measurements
+For voice, I moved Qwen into a separate warm service after loading it inside the DeepStream process destabilized the pipeline. That traded roughly 607 MB of idle resident memory in one sample for process isolation and faster repeated responses.
 
-FPS at a camera or browser cap is a throughput ceiling, not proof of spare capacity. CPU percentages in the field log are Linux process percentages, where 100% is roughly one full core. GPU utilization averages can hide short, latency-sensitive inference bursts. Build-time choices and inference-time performance are separate: the builder level 5 plans were faster in the recorded `trtexec` runs, but took more time to compile.
+## Evidence and limits
 
-The implementation, model weights, TensorRT plans, recordings, and device-specific configuration are intentionally outside this notes repository. Addresses and local account paths in the historical log were replaced with documentation examples.
+- **Hardware:** Jetson Orin Nano developer kit, 8 GB class, Ampere GPU (compute capability 8.7); CSI camera; YOLO, TensorRT, DeepStream, MediaPipe, and local Qwen/`llama.cpp`.
+- **Measurement context:** Stream FPS includes the enabled camera, inference, hand/pose, overlay, and encoding stages. The 30 FPS camera cap limits what a stream FPS result can show. The builder-level comparison measures each TensorRT engine alone, not the full DeepStream pipeline.
+- **Confidence:** These are measurements from one device. Many are short operational samples rather than repeated controlled trials. Power mode and clocks can affect comparisons; instantaneous GPU clocks were not recorded for every run.
+
+Read the [case studies](notes/case-studies.md) for the changes and tradeoffs, the [TensorRT level 3 versus 5 comparison](notes/tensorrt-builder-comparison.md) for full benchmark numbers, or the sanitized [May field log](notes/field-log.md) and [later stream log](notes/recent-stream-log.md) for the chronological record. Commands in the logs document the configuration at the time and may no longer match the current application.
+
+The production application, model weights, TensorRT plans, recordings, and device-specific configuration are outside this notes repository. Local account paths and LAN addresses in the historical logs were replaced with documentation examples.
