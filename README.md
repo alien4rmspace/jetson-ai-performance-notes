@@ -13,6 +13,19 @@ This repository is my performance engineering portfolio: the results and decisio
 | TensorRT builder settings had an unknown payoff | Built separate YOLO26s detector and pose plans at optimization levels 3 and 5, then benchmarked each | Level 5 gave **+8.9% detector** and **+6.9% pose** throughput in isolated 10-second `trtexec` runs. |
 | CPU-only local Qwen responses were slow | Built `llama-cpp-python` with CUDA and offloaded supported layers | One command prompt fell from **14.3 → 4.52 s**; a conversational sample fell from **14–18 → 6.44 s**. |
 
+## TensorRT optimization level 3 vs 5
+
+I built FP16-capable YOLO26s pose and detector plans on the same Orin Nano with TensorRT 10.16.2, then benchmarked each plan with `trtexec` for 10 seconds after a 1-second warm-up. Build time is a one-time cost; the other columns measure isolated engine inference.
+
+| Model | Level | Throughput (qps) | Mean latency (ms) | GPU mean / p99 (ms) | Build time (s) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Pose | 3 | 146.832 | 7.198 | 6.804 / 7.085 | 440.30 |
+| Pose | **5** | **156.991** | **6.791** | **6.364 / 6.543** | 1,101.53 |
+| Detector | 3 | 155.401 | 6.824 | 6.429 / 6.714 | 38.34 |
+| Detector | **5** | **169.218** | **6.312** | **5.904 / 6.184** | 175.52 |
+
+Level 5 improved throughput by **6.9% for pose** and **8.9% for detection** in these runs, at roughly 2.5× and 4.6× the build time. Both level 5 plans were selected locally. The [full benchmark note](notes/tensorrt-builder-comparison.md) records the configuration and limits.
+
 ## System and engineering decisions
 
 The production path grew from a Python YOLO camera stream into **CSI camera → Argus/GStreamer → DeepStream YOLO26s detection and pose → hand-gesture worker → browser MJPEG**. I decoupled browser publication from camera/inference cadence, removed a JPEG encode/decode round trip before CPU hand processing, and used a secondary DeepStream pose engine on person regions. I kept MediaPipe for hands when it recognized closed-fist gestures more reliably than a lower-CPU TensorRT hand path.
