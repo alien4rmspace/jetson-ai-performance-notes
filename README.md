@@ -28,6 +28,12 @@ Average main-process CPU fell from **21.77% to 19.68% of the six-core CPU**, a *
 
 The [full RGB comparison](notes/rgb-shared-memory-comparison.md) includes sample counts, stage timings, measurement methods, and the derived JSON data. Scene activity was not held identical, and several pipeline components changed together.
 
+<img width="1478" height="503" alt="image" src="https://github.com/user-attachments/assets/c0dc6405-1968-4ee3-906c-7bfa71abc83e" />
+
+<img width="1483" height="506" alt="image" src="https://github.com/user-attachments/assets/08374f42-6168-4c30-86ee-c5890a8a8b81" />
+
+
+
 ## TensorRT optimization level 3 vs 5
 
 I created a benchmarking script that automatically builds and compares FP16-capable YOLO26s pose and detector TensorRT plans across builder optimization levels. On the same Orin Nano with TensorRT 10.16.2, the script built level 3 and level 5 plans, ran each through trtexec for 10 seconds after a 1-second warm-up, collected latency and throughput metrics, and selected the faster plans locally. Build time is a one-time cost; the other columns measure isolated engine inference.
