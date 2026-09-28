@@ -92,7 +92,8 @@ For voice, I moved Qwen into a separate warm service after loading it inside the
 
 ## Evidence and limits
 
-- **Hardware:** Jetson Orin Nano developer kit, 8 GB class, Ampere GPU (compute capability 8.7); CSI camera; YOLO, TensorRT, DeepStream, MediaPipe, and local Qwen/`llama.cpp`.
+- **Hardware:** Jetson Orin Nano developer kit, 8 GB class, Ampere GPU (compute capability 8.7); Arducam 12MP 477P Pan Tilt Zoom camera connected over CSI.
+- **Software:** YOLO, TensorRT, DeepStream, MediaPipe, and local Qwen via `llama.cpp`.
 - **Measurement context:** Stream FPS includes the enabled camera, inference, hand/pose, overlay, and encoding stages. The 30 FPS camera cap limits what a stream FPS result can show. The builder-level comparison measures each TensorRT engine alone, not the full DeepStream pipeline.
 - **Confidence:** These are measurements from one device. Many are short operational samples rather than repeated controlled trials. Power mode and clocks can affect comparisons; instantaneous GPU clocks were not recorded for every run.
 
