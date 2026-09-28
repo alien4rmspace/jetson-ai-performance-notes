@@ -24,15 +24,14 @@ The September 28 Nsight Systems comparison measured the synchronous frame callba
 | Hand submission in the camera callback | 2.77 / 3.63 / 4.78 | **0.38 / 0.65 / 0.79** |
 | MediaPipe recognition | 77.28 / 122.33 / 126.76 | 83.03 / 119.92 / 129.38 |
 
-Average CPU use and GPU activity over each approximately 30-second capture:
+Average utilization over each approximately 30-second capture:
 
 | Measurement | Before (`123919`) | After (`130901`) | Scope |
 | --- | ---: | ---: | --- |
 | Main-process CPU utilization | **21.77%** | **19.68%** | Scheduled CPU time divided by capture time and six CPU cores. |
-| GPU traced CUDA activity | **40.11%** | **37.68%** | Fraction of capture time with a traced kernel, memory copy, or memset active; overlapping operations count once. |
 | Hardware GPU utilization | Not captured | Not captured | No hardware utilization samples are available in these reports. |
 
-Main-process CPU decreased by **9.6% relative**. CPU scheduling coverage excludes the separate MediaPipe, recording, and browser workers, so this does not establish total application CPU savings. GPU traced activity is a timeline measure, not SM occupancy or whole-device utilization; the later run also executed fewer traced kernels, so its lower activity does not establish a GPU speedup caused by the RGB changes.
+Main-process CPU decreased by **9.6% relative**. CPU scheduling coverage excludes the separate MediaPipe, recording, and browser workers, so this does not establish total application CPU savings.
 
 The callback became shorter, while recognition latency showed no consistent improvement. Frame-callback latency excludes background completion and is not camera-to-browser latency.
 

@@ -82,12 +82,11 @@ sender thread; `Hand RGB Image` constructs the worker's MediaPipe image. These
 stages execute on different threads/processes, and their percentiles must not be
 added to estimate end-to-end latency.
 
-## Average CPU use and GPU activity
+## Average utilization
 
 | Measurement | Before | After | Scope |
 | --- | ---: | ---: | --- |
 | Main-process CPU utilization across six cores | 21.77% | 19.68% | Main stream process only. |
-| GPU traced CUDA activity | 40.11% | 37.68% | Union of traced kernel, memory-copy, and memset execution intervals. |
 | Hardware GPU utilization | Not captured | Not captured | No hardware utilization samples in these reports. |
 
 ### CPU calculation
@@ -108,31 +107,6 @@ stream PID. MediaPipe, HTTP encoding, recording, and other system processes are
 absent from this calculation. Changes to work in those processes, particularly
 the recording encoder, need separate measurement.
 
-### GPU calculation
-
-The CUDA trace contains activity from the main stream PID on device 0 in each
-report. Merging overlapping kernel, memory-copy, and memset intervals gives
-**12.033 s / 29.999 s = 40.11%** before and
-**11.303 s / 30.000 s = 37.68%** after. The fractions describe time with at least
-one traced CUDA operation active, not how fully the GPU's execution resources
-were occupied during that time.
-
-| CUDA trace detail | Before | After |
-| --- | ---: | ---: |
-| Kernel count | 345,167 | 322,291 |
-| Memory-copy event count | 6,389 | 6,238 |
-| Memset event count | 9,187 | 9,008 |
-| Time with at least one kernel active | 11.212 s | 10.486 s |
-| Kernel-only active fraction | 37.37% | 34.95% |
-| Time with any traced CUDA operation active | 12.033 s | 11.303 s |
-
-The reports contain no GPU hardware metric samples. These values therefore do
-not measure SM occupancy, GR3D load, or whole-device utilization, and they omit
-untraced work and separate engines such as VIC. The kernel count also differs
-between runs; scene activity and workload were not controlled. Lower traced
-activity alone does not establish improved GPU efficiency or a GPU speedup
-caused by the RGB/shared-memory conversion.
-
 ## Evidence and calculation
 
 The original `.nsys-rep` files remain local and are not included in this notes
@@ -140,7 +114,6 @@ repository. The derived measurements are preserved here:
 
 - [Latency values and sample counts](../data/2026-09-28-rgb/latency.json)
 - [CPU totals, per-core shares, and scheduling checks](../data/2026-09-28-rgb/cpu.json)
-- [GPU activity fractions, event counts, and timing bounds](../data/2026-09-28-rgb/gpu.json)
 
 Latency comes from `NVTX_EVENTS` and `StringIds`, grouped by process/domain and
 marker. Duration is `(end - start) / 1e6` ms. Percentiles use NumPy's linear
@@ -158,14 +131,6 @@ without unmatched boundaries or thread mismatches. The computation is:
 average busy cores = summed scheduled CPU seconds / capture seconds
 six-core CPU utilization (%) = average busy cores / 6 * 100
 ```
-
-GPU activity comes from `CUPTI_ACTIVITY_KIND_KERNEL`,
-`CUPTI_ACTIVITY_KIND_MEMCPY`, and `CUPTI_ACTIVITY_KIND_MEMSET`. Intervals are
-clipped to the capture window, sorted by start time, and merged per device.
-The union duration divided by capture duration gives the traced activity
-fraction; summing individual event durations would double-count overlap. No
-reversed intervals were found. The full SQLite exports contain no GPU metric
-sample tables; `TARGET_INFO_GPU` describes the device rather than its load.
 
 The result is an observation from one run per version. Different scene activity,
 ROI sizes, background load, and capture overhead can affect the comparison.
