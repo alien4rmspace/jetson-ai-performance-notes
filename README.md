@@ -47,9 +47,11 @@ Capture: `vision-20260928-133010.nsys-rep` (a later RGB run).
 ![Nsight timeline with RGB and shared memory: a 7.687 ms Frame Processing range contains RGB Frame Copy and a shorter hand-submission section.](assets/nsight/vision-20260928-133010-rgb.png)
 
 This frame's purple `Frame Processing` range spans **7.687 ms**. `RGB Frame Copy`
-takes **4.261 ms**, and `Process CPU Frame` takes **2.788 ms**. JPEG hand-frame
-encoding has been replaced by the shorter snapshot/submission work; preparation
-and recognition continue in the sender thread and MediaPipe process.
+takes **4.261 ms**, and `Process CPU Frame` takes **2.788 ms**. Within the latter,
+`Process Hand Frame` takes **537 µs (0.537 ms)**, including **391.5 µs (0.3915 ms)**
+of `Hand Frame Snapshot` (timings supplied from the expanded Nsight ranges).
+JPEG hand-frame encoding has been replaced by this snapshot/submission work;
+preparation and recognition continue in the sender thread and MediaPipe process.
 
 These screenshots show individual frames at different timeline zoom levels.
 Their durations are examples, not averages or percentiles, and nested ranges
