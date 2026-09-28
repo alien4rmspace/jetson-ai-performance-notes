@@ -28,7 +28,7 @@ The September 28 Nsight Systems comparison measured the synchronous frame callba
 
 Average utilization over each approximately 30-second capture:
 
-| Measurement | Before (`123919`) | After (`130901`) | Scope |
+| Measurement | Before: BGR + JPEG | After: RGB + shared memory | Scope |
 | --- | ---: | ---: | --- |
 | Main-process CPU utilization | **21.77%** | **19.68%** | Scheduled CPU time divided by capture time and six CPU cores. |
 

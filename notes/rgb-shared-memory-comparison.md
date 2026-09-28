@@ -84,7 +84,7 @@ added to estimate end-to-end latency.
 
 ## Average utilization
 
-| Measurement | Before | After | Scope |
+| Measurement | Before: BGR + JPEG | After: RGB + shared memory | Scope |
 | --- | ---: | ---: | --- |
 | Main-process CPU utilization across six cores | 21.77% | 19.68% | Main stream process only. |
 
