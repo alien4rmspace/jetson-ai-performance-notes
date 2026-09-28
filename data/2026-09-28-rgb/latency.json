@@ -1,0 +1,187 @@
+{
+  "method": "NumPy percentile, linear interpolation; completed NVTX ranges wholly inside capture only",
+  "rows": [
+    {
+      "report": "123919",
+      "marker": "MediaPipe Hand Inference",
+      "n": 232,
+      "excluded": 0,
+      "pids": [
+        19846
+      ],
+      "p50_ms": 77.281824,
+      "p95_ms": 122.3308416,
+      "p99_ms": 126.7632288,
+      "mean_ms": 78.21623958620691
+    },
+    {
+      "report": "123919",
+      "marker": "Frame Processing",
+      "n": 899,
+      "excluded": 1,
+      "pids": [
+        19813
+      ],
+      "p50_ms": 7.628576,
+      "p95_ms": 16.6608608,
+      "p99_ms": 20.118622719999994,
+      "mean_ms": 9.138475959955507
+    },
+    {
+      "report": "123919",
+      "marker": "RGB to BGR Conversion",
+      "n": 899,
+      "excluded": 1,
+      "pids": [
+        19813
+      ],
+      "p50_ms": 4.671872,
+      "p95_ms": 7.706940799999997,
+      "p99_ms": 10.704623999999999,
+      "mean_ms": 5.126662691879866
+    },
+    {
+      "report": "123919",
+      "marker": "Process CPU Frame",
+      "n": 899,
+      "excluded": 0,
+      "pids": [
+        19813
+      ],
+      "p50_ms": 1.188928,
+      "p95_ms": 7.06324479999999,
+      "p99_ms": 10.77876864,
+      "mean_ms": 2.6065855572858734
+    },
+    {
+      "report": "123919",
+      "marker": "Process Hand Frame",
+      "n": 445,
+      "excluded": 0,
+      "pids": [
+        19813
+      ],
+      "p50_ms": 2.76544,
+      "p95_ms": 3.6303167999999983,
+      "p99_ms": 4.7766822399999995,
+      "mean_ms": 1.9697285752808988
+    },
+    {
+      "report": "123919",
+      "marker": "Hand Frame Encoding",
+      "n": 286,
+      "excluded": 0,
+      "pids": [
+        19813
+      ],
+      "p50_ms": 2.7711040000000002,
+      "p95_ms": 3.605968,
+      "p99_ms": 4.610676799999999,
+      "mean_ms": 2.8941467972027968
+    },
+    {
+      "report": "130901",
+      "marker": "Hand RGB Image",
+      "n": 232,
+      "excluded": 0,
+      "pids": [
+        22472
+      ],
+      "p50_ms": 0.238128,
+      "p95_ms": 0.3686288,
+      "p99_ms": 0.57139296,
+      "mean_ms": 0.2544172413793103
+    },
+    {
+      "report": "130901",
+      "marker": "MediaPipe Hand Inference",
+      "n": 232,
+      "excluded": 0,
+      "pids": [
+        22472
+      ],
+      "p50_ms": 83.026768,
+      "p95_ms": 119.9161216,
+      "p99_ms": 129.3797136,
+      "mean_ms": 87.55983862068965
+    },
+    {
+      "report": "130901",
+      "marker": "Process CPU Frame",
+      "n": 900,
+      "excluded": 0,
+      "pids": [
+        22406
+      ],
+      "p50_ms": 1.333424,
+      "p95_ms": 4.247342399999998,
+      "p99_ms": 7.070256,
+      "mean_ms": 1.8538922666666666
+    },
+    {
+      "report": "130901",
+      "marker": "Process Hand Frame",
+      "n": 460,
+      "excluded": 0,
+      "pids": [
+        22406
+      ],
+      "p50_ms": 0.38480000000000003,
+      "p95_ms": 0.6521104,
+      "p99_ms": 0.7941558399999993,
+      "mean_ms": 0.3232898782608696
+    },
+    {
+      "report": "130901",
+      "marker": "Hand Frame Snapshot",
+      "n": 318,
+      "excluded": 0,
+      "pids": [
+        22406
+      ],
+      "p50_ms": 0.308752,
+      "p95_ms": 0.48552639999999997,
+      "p99_ms": 0.6965132799999995,
+      "mean_ms": 0.3329207547169811
+    },
+    {
+      "report": "130901",
+      "marker": "Hand Frame Prepare",
+      "n": 232,
+      "excluded": 0,
+      "pids": [
+        22406
+      ],
+      "p50_ms": 0.190928,
+      "p95_ms": 0.7402479999999998,
+      "p99_ms": 1.2619635199999995,
+      "mean_ms": 0.2703743448275862
+    },
+    {
+      "report": "130901",
+      "marker": "Frame Processing",
+      "n": 899,
+      "excluded": 0,
+      "pids": [
+        22406
+      ],
+      "p50_ms": 6.532736,
+      "p95_ms": 13.251299199999998,
+      "p99_ms": 18.595243519999997,
+      "mean_ms": 7.6145157196885425
+    },
+    {
+      "report": "130901",
+      "marker": "RGB Frame Copy",
+      "n": 899,
+      "excluded": 0,
+      "pids": [
+        22406
+      ],
+      "p50_ms": 3.900992,
+      "p95_ms": 6.832089599999994,
+      "p99_ms": 10.330481279999994,
+      "mean_ms": 4.339196155728588
+    }
+  ]
+}

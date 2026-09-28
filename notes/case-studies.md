@@ -33,3 +33,11 @@ That workaround is tied to the older software stack and should be retested on ot
 ## 6. Compare TensorRT builder levels with measured plans
 
 The September 2026 experiment built separate FP16 detector and pose plans at builder levels 3 and 5, then loaded and benchmarked each plan for 10 seconds after a one-second warm-up. Level 5 improved isolated throughput by 6.9% for pose and 8.9% for detection in those runs. The [full comparison](tensorrt-builder-comparison.md) records GPU compute time and one-time build cost. Both level 5 plans were selected for the local deployment; a full stream test remains a separate validation step.
+
+## 7. Standardize RGB and remove compressed hand-frame transfer
+
+In the September 28 pipeline, DeepStream supplied RGB frames that the application converted to BGR. Eligible hand crops were JPEG-encoded in the camera callback, sent to the MediaPipe subprocess, decoded, and converted back to RGB. Pending encoded crops could be replaced before inference consumed them.
+
+The replacement keeps live frames in RGB, retains the latest owned crop, and prepares raw shared memory when the hand worker is ready. Browser encoding uses an RGB-compatible JPEG interface; recording accepts RGB through GStreamer. Two approximately 30-second Nsight captures showed frame-callback p95 falling from 16.66 to 13.25 ms and main-process CPU falling from 21.77% to 19.68% of the six-core CPU. The hand-submission marker's median fell from 2.77 to 0.38 ms, although the proportion of calls eligible to prepare a frame differed.
+
+MediaPipe recognition showed no consistent latency improvement. Its median rose from 77.28 to 83.03 ms, while p95 fell from 122.33 to 119.92 ms. The captures did not contain scheduling data for the separate workers, and the recording encoder changed as part of the migration. The supported conclusion is reduced camera-callback cost and observed main-process CPU usage; total-system savings and causal attribution require a controlled comparison. The [full note and derived data](rgb-shared-memory-comparison.md) retain the measurement scopes and sample counts.

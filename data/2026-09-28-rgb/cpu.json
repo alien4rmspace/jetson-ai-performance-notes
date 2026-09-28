@@ -1,0 +1,102 @@
+{
+  "scope": "Main stream process only; child processes and other system activity are absent from SCHED_EVENTS",
+  "method": "Sum matched schedule-in/out intervals, clipped to capture duration; divide by elapsed time and 6 cores",
+  "reports": [
+    {
+      "report": "vision-20260928-123919.nsys-rep",
+      "duration_s": 29.999,
+      "cores": 6,
+      "pids": [
+        19813
+      ],
+      "cpu_time_s": 39.186814656,
+      "average_cores_busy": 1.3062706975565852,
+      "percent_all_cores": 21.77117829260975,
+      "percent_one_core_scale": 130.6270697556585,
+      "per_core_percent": {
+        "0": 29.463957705256842,
+        "1": 23.25412479082636,
+        "2": 21.627964132137738,
+        "3": 21.681606986899563,
+        "4": 18.215965065502182,
+        "5": 16.383451075035836
+      },
+      "top_threads_cpu_seconds": [
+        [
+          19900,
+          11.061683136
+        ],
+        [
+          19912,
+          8.787627488
+        ],
+        [
+          19901,
+          4.23864432
+        ],
+        [
+          19816,
+          3.727598464
+        ],
+        [
+          19938,
+          3.478735872
+        ],
+        [
+          19911,
+          0.927676064
+        ]
+      ],
+      "pairing_anomalies": [],
+      "pairing_anomaly_count": 0
+    },
+    {
+      "report": "vision-20260928-130901.nsys-rep",
+      "duration_s": 30.0,
+      "cores": 6,
+      "pids": [
+        22406
+      ],
+      "cpu_time_s": 35.430348288,
+      "average_cores_busy": 1.1810116096,
+      "percent_all_cores": 19.683526826666668,
+      "percent_one_core_scale": 118.10116096,
+      "per_core_percent": {
+        "0": 24.820949653333333,
+        "1": 19.515328853333333,
+        "2": 19.358584746666665,
+        "3": 19.004350826666666,
+        "4": 18.123445013333335,
+        "5": 17.278501866666666
+      },
+      "top_threads_cpu_seconds": [
+        [
+          22531,
+          9.593030656
+        ],
+        [
+          22542,
+          8.6447192
+        ],
+        [
+          22409,
+          3.575891872
+        ],
+        [
+          22572,
+          3.521305888
+        ],
+        [
+          22532,
+          3.367004896
+        ],
+        [
+          22541,
+          0.875711904
+        ]
+      ],
+      "pairing_anomalies": [],
+      "pairing_anomaly_count": 0
+    }
+  ]
+}
