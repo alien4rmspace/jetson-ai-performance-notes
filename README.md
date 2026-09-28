@@ -28,11 +28,34 @@ Average main-process CPU fell from **21.77% to 19.68% of the six-core CPU**, a *
 
 The [full RGB comparison](notes/rgb-shared-memory-comparison.md) includes sample counts, stage timings, measurement methods, and the derived JSON data. Scene activity was not held identical, and several pipeline components changed together.
 
-<img width="1478" height="503" alt="image" src="https://github.com/user-attachments/assets/c0dc6405-1968-4ee3-906c-7bfa71abc83e" />
+### Visual benchmarking log
 
-<img width="1483" height="506" alt="image" src="https://github.com/user-attachments/assets/08374f42-6168-4c30-86ee-c5890a8a8b81" />
+**Before — BGR conversion and JPEG hand-frame preparation**
 
+Capture: `vision-20260928-123919.nsys-rep`.
 
+![Nsight timeline before RGB standardization: an 11.924 ms Frame Processing range contains RGB-to-BGR conversion and JPEG hand-frame encoding.](assets/nsight/vision-20260928-123919-bgr.png)
+
+This frame's purple `Frame Processing` range spans **11.924 ms**. Within it,
+`RGB to BGR Conversion` takes **4.745 ms**, and `Process CPU Frame` takes
+**5.883 ms**, including **2.656 ms** of `Hand Frame Encoding`.
+
+**After — RGB frames and shared-memory hand transfer**
+
+Capture: `vision-20260928-133010.nsys-rep` (a later RGB run).
+
+![Nsight timeline with RGB and shared memory: a 7.687 ms Frame Processing range contains RGB Frame Copy and a shorter hand-submission section.](assets/nsight/vision-20260928-133010-rgb.png)
+
+This frame's purple `Frame Processing` range spans **7.687 ms**. `RGB Frame Copy`
+takes **4.261 ms**, and `Process CPU Frame` takes **2.788 ms**. JPEG hand-frame
+encoding has been replaced by the shorter snapshot/submission work; preparation
+and recognition continue in the sender thread and MediaPipe process.
+
+These screenshots show individual frames at different timeline zoom levels.
+Their durations are examples, not averages or percentiles, and nested ranges
+should not be added together. The table above compares captures `123919` and
+`130901`; the after screenshot illustrates the RGB path in the later `133010`
+capture and is not the source of that table's statistics.
 
 ## TensorRT optimization level 3 vs 5
 
