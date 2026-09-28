@@ -16,7 +16,7 @@ This repository is my performance engineering portfolio: the results and decisio
 
 ## RGB and shared-memory frame processing
 
-While reviewing the frame pipeline with Nsight Systems, I noticed frames were being converted back and forth between RGB and BGR: RGB from DeepStream became BGR for CPU processing, then returned to RGB for MediaPipe. I standardized CPU frame processing on RGB to eliminate the redundant conversions and replaced JPEG hand-frame transfer with raw RGB shared memory. **This reduced the work needed to pass frames between processes by removing JPEG encoding and decoding.**
+While reviewing the frame pipeline with Nsight Systems, I noticed frames were being converted back and forth between RGB and BGR: RGB from DeepStream became BGR for CPU processing **to match OpenCV’s default color convention**, then returned to RGB for MediaPipe. I standardized CPU frame processing on RGB to eliminate the redundant conversions and replaced JPEG hand-frame transfer with raw RGB shared memory. This reduced the work needed to pass frames between processes by removing JPEG encoding and decoding.
 
 The September 28 Nsight Systems comparison measured the synchronous frame callback and the separate MediaPipe recognition call before and after the RGB conversion. All latency values are milliseconds.
 
