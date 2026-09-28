@@ -29,7 +29,7 @@ savings for the entire application.
 All times are milliseconds. p50 is the median; p95/p99 are the duration thresholds
 below which 95%/99% of measured calls fall. N counts completed ranges.
 
-| Marker | Run | N | Mean | p50 | p95 | p99 |
+| Marker | Run | N | Mean (ms) | p50 (ms) | p95 (ms) | p99 (ms) |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | `Frame Processing` | Before | 899 | 9.14 | 7.63 | 16.66 | 20.12 |
 | `Frame Processing` | After | 899 | 7.61 | 6.53 | 13.25 | 18.60 |
@@ -66,7 +66,7 @@ calls; equal counts do not establish identical image or hand-detection workloads
 These markers describe different work before and after the conversion, so they
 are listed separately. Values are milliseconds.
 
-| Run | Marker | N | Mean | p50 | p95 | p99 |
+| Run | Marker | N | Mean (ms) | p50 (ms) | p95 (ms) | p99 (ms) |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | Before | `RGB to BGR Conversion` | 899 | 5.13 | 4.67 | 7.71 | 10.70 |
 | After | `RGB Frame Copy` | 899 | 4.34 | 3.90 | 6.83 | 10.33 |
@@ -87,7 +87,6 @@ added to estimate end-to-end latency.
 | Measurement | Before | After | Scope |
 | --- | ---: | ---: | --- |
 | Main-process CPU utilization across six cores | 21.77% | 19.68% | Main stream process only. |
-| Hardware GPU utilization | Not captured | Not captured | No hardware utilization samples in these reports. |
 
 ### CPU calculation
 

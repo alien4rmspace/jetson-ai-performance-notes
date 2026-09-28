@@ -18,7 +18,7 @@ This repository is my performance engineering portfolio: the results and decisio
 
 The September 28 Nsight Systems comparison measured the synchronous frame callback and the separate MediaPipe recognition call before and after the RGB conversion. All latency values are milliseconds.
 
-| Measurement | Before p50 / p95 / p99 | After p50 / p95 / p99 |
+| Measurement | Before p50 / p95 / p99 (ms) | After p50 / p95 / p99 (ms) |
 | --- | ---: | ---: |
 | Frame callback | 7.63 / 16.66 / 20.12 | **6.53 / 13.25 / 18.60** |
 | Hand submission in the camera callback | 2.77 / 3.63 / 4.78 | **0.38 / 0.65 / 0.79** |
@@ -29,7 +29,6 @@ Average utilization over each approximately 30-second capture:
 | Measurement | Before (`123919`) | After (`130901`) | Scope |
 | --- | ---: | ---: | --- |
 | Main-process CPU utilization | **21.77%** | **19.68%** | Scheduled CPU time divided by capture time and six CPU cores. |
-| Hardware GPU utilization | Not captured | Not captured | No hardware utilization samples are available in these reports. |
 
 Main-process CPU decreased by **9.6% relative**. CPU scheduling coverage excludes the separate MediaPipe, recording, and browser workers, so this does not establish total application CPU savings.
 
