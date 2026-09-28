@@ -9,7 +9,7 @@ This repository is my performance engineering portfolio: the results and decisio
 | Problem | Change I made | Observed result |
 | --- | --- | --- |
 | CPU inference limited the YOLOv8n stream | Moved inference to PyTorch CUDA, then exported a TensorRT FP16 engine | **8.5 → 23.7 → 30.0 FPS** in the application stream; 30 FPS was the camera ceiling. |
-| CPU color conversion added cost to the browser/hand path | Negotiated BGR output through GPU `nvvideoconvert` and removed `cv2.cvtColor` | **3.10 → 1.61 ms** for CPU frame mapping/color preparation in short live samples. |
+| CPU color conversion added cost to the browser/hand path | Moved conversion to BGR onto the GPU, removing the CPU color conversion step | **3.10 → 1.61 ms** for CPU frame mapping/color preparation in short live samples. |
 | Frame callbacks prepared compressed images for an asynchronous hand worker | Standardized the later pipeline on RGB, moved hand transfer to shared memory, and updated output encoders | Callback **p95: 16.66 → 13.25 ms**; main-process CPU across six cores **21.77% → 19.68%** in two 30-second captures. Worker CPU and total-system savings were not measured. |
 | TensorRT builder settings had an unknown payoff | Built separate YOLO26s detector and pose plans at optimization levels 3 and 5, then benchmarked each | Level 5 gave **+8.9% detector** and **+6.9% pose** throughput in isolated 10-second `trtexec` runs. |
 | CPU-only local Qwen responses were slow | Built `llama-cpp-python` with CUDA and offloaded supported layers | One command prompt fell from **14.3 → 4.52 s**; a conversational sample fell from **14–18 → 6.44 s**. |
