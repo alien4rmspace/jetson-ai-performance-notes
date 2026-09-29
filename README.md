@@ -90,6 +90,9 @@ Observed mean frame-copy time fell **48.8%**, and frame-callback p50/p95/p99 fel
 
 CPU measurements exclude the separate workers, and callback latency is not camera-to-browser latency. Scene and PTZ conditions were not controlled, so these runs do not isolate the change's causal effect. The [full direct-to-NumPy comparison](notes/direct-numpy-copy-comparison.md) includes sample counts, methods, limitations, and derived data.
 
+<img width="1477" height="504" alt="image" src="https://github.com/user-attachments/assets/73947f32-ff5e-41d3-ae36-cf5dc5a66776" />
+
+
 ## TensorRT optimization level 3 vs 5
 
 I created a benchmarking script that automatically builds and compares FP16-capable YOLO26s pose and detector TensorRT plans across builder optimization levels. On the same Orin Nano with TensorRT 10.16.2, the script built level 3 and level 5 plans, ran each through trtexec for 10 seconds after a 1-second warm-up, collected latency and throughput metrics, and selected the faster plans locally. Build time is a one-time cost; the other columns measure isolated engine inference.
