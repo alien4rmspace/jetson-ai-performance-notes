@@ -98,12 +98,11 @@ CPU measurements exclude the separate workers, and callback latency is not camer
 
 **Before — temporary CPU buffer followed by a NumPy copy**
 
-Capture: `vision-20260928-133010.nsys-rep` (an earlier RGB/shared-memory run).
+Capture: `vision-20260928-182731-cpu-frames.nsys-rep`.
 
-<img width="1472" height="525" alt="image" src="https://github.com/user-attachments/assets/0c06dc00-ccbd-4040-bc08-094bd1ad645d" />
+![Nsight timeline before the direct-to-NumPy change: RGB Frame Copy takes 3.970 ms, with cudaMemcpy visible in the CUDA API row.](assets/nsight/vision-20260928-182731-temporary-copy.png)
 
-
-This frame's `RGB Frame Copy` range spans **4.261 ms**, and the full `Frame Processing` callback spans **7.687 ms**. `Process CPU Frame` takes **2.788 ms**. The CUDA API row shows `cudaMemcpy`; the subsequent CPU-to-CPU NumPy copy is included in the frame-copy range but does not appear as a CUDA API call.
+This frame's `RGB Frame Copy` range spans **3.970 ms**, and the full `Frame Processing` callback spans **9.578 ms**. `Process CPU Frame` takes **3.152 ms**. The CUDA API row shows `cudaMemcpy`; the subsequent CPU-to-CPU NumPy copy is included in the frame-copy range but does not appear as a CUDA API call.
 
 **After — copy directly into the final NumPy array**
 
@@ -113,7 +112,7 @@ Capture: `vision-20260928-185712-cpu-frames.nsys-rep`.
 
 This frame's `RGB Frame Copy` range spans **3.129 ms**, and the full `Frame Processing` callback spans **6.373 ms**. `Process CPU Frame` takes **2.497 ms**. The CUDA API row shows `cudaMemcpy2D`, which copies the padded source rows into the final NumPy array.
 
-These screenshots illustrate individual frames at different timeline zoom levels, not averages or percentiles. Nested ranges should not be added together. The table above compares captures `182731` and `185712`; the before screenshot comes from the earlier `133010` capture and is not the source of the table's before statistics.
+Both screenshots come from the same captures used in the table above: `182731` before and `185712` after. They illustrate individual frames at different timeline zoom levels, not averages or percentiles. Nested ranges should not be added together.
 
 ## TensorRT optimization level 3 vs 5
 
