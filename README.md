@@ -20,7 +20,7 @@ While reviewing the frame pipeline with Nsight Systems, I noticed frames were be
 
 The September 28 Nsight Systems comparison measured the synchronous frame callback and the separate MediaPipe recognition call before and after the RGB conversion. All latency values are milliseconds.
 
-| Measurement | Before p50 / p95 / p99 (ms) | After p50 / p95 / p99 (ms) |
+| Measurement | Before: BGR + JPEG — p50 / p95 / p99 (ms) | After: RGB + shared memory — p50 / p95 / p99 (ms) |
 | --- | ---: | ---: |
 | Frame callback | 7.63 / 16.66 / 20.12 | **6.53 / 13.25 / 18.60** |
 | Hand submission in the camera callback | 2.77 / 3.63 / 4.78 | **0.38 / 0.65 / 0.79** |
