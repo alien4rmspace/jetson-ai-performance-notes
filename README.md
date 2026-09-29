@@ -21,17 +21,19 @@ While reviewing the frame pipeline with Nsight Systems, I noticed frames were be
 
 The September 28 Nsight Systems comparison measured the synchronous frame callback and the separate MediaPipe recognition call before and after the RGB conversion. All latency values are milliseconds.
 
-| Measurement | Before: BGR + JPEG — p50 / p95 / p99 (ms) | After: RGB + shared memory — p50 / p95 / p99 (ms) |
-| --- | ---: | ---: |
-| Frame callback | 7.63 / 16.66 / 20.12 | **6.53 / 13.25 / 18.60** |
-| Hand submission in the camera callback | 2.77 / 3.63 / 4.78 | **0.38 / 0.65 / 0.79** |
-| MediaPipe recognition | 77.28 / 122.33 / 126.76 | 83.03 / 119.92 / 129.38 |
+| Measurement | Before: BGR + JPEG — p50 / p95 / p99 (ms) | After: RGB + shared memory — p50 / p95 / p99 (ms) | Relative change — p50 / p95 / p99 |
+| --- | ---: | ---: | ---: |
+| Frame callback | 7.63 / 16.66 / 20.12 | **6.53 / 13.25 / 18.60** | −14.4% / −20.5% / −7.6% |
+| Hand submission in the camera callback | 2.77 / 3.63 / 4.78 | **0.38 / 0.65 / 0.79** | −86.1% / −82.0% / −83.4% |
+| MediaPipe recognition | 77.28 / 122.33 / 126.76 | 83.03 / 119.92 / 129.38 | +7.4% / −2.0% / +2.1% |
+
+Relative change is `(after − before) / before × 100`, calculated from unrounded data. Negative latency changes mean faster; positive changes mean slower.
 
 Average utilization over each approximately 30-second capture:
 
-| Measurement | Before: BGR + JPEG | After: RGB + shared memory | Scope |
-| --- | ---: | ---: | --- |
-| Main-process CPU utilization | **21.77%** | **19.68%** | Scheduled CPU time divided by capture time and six CPU cores. |
+| Measurement | Before: BGR + JPEG | After: RGB + shared memory | Relative change | Scope |
+| --- | ---: | ---: | ---: | --- |
+| Main-process CPU utilization | **21.77%** | **19.68%** | −9.6% | Scheduled CPU time divided by capture time and six CPU cores. |
 
 Main-process CPU decreased by **9.6% relative**. CPU scheduling coverage excludes the separate MediaPipe, recording, and browser workers, so this does not establish total application CPU savings.
 
@@ -76,15 +78,17 @@ After standardizing the pipeline on RGB, I noticed that the frame-copy helper st
 
 The September 28 captures at **18:27:31 (before)** and **18:57:12 (after)** both used RGB/shared-memory processing with the CPU frame path enabled. This is a later comparison with its own baseline.
 
-| Measurement | Before: temporary buffer + NumPy copy — p50 / p95 / p99 (ms) | After: direct NumPy copy — p50 / p95 / p99 (ms) |
-| --- | ---: | ---: |
-| Frame callback | 9.63 / 19.09 / 29.67 | **7.22 / 13.37 / 17.13** |
-| RGB frame copy | 5.25 / 11.79 / 16.30 | **2.74 / 5.91 / 9.01** |
+| Measurement | Before: temporary buffer + NumPy copy — p50 / p95 / p99 (ms) | After: direct NumPy copy — p50 / p95 / p99 (ms) | Relative change — p50 / p95 / p99 |
+| --- | ---: | ---: | ---: |
+| Frame callback | 9.63 / 19.09 / 29.67 | **7.22 / 13.37 / 17.13** | −25.0% / −30.0% / −42.3% |
+| RGB frame copy | 5.25 / 11.79 / 16.30 | **2.74 / 5.91 / 9.01** | −47.8% / −49.9% / −44.7% |
 
-| Measurement | Before: temporary buffer + NumPy copy | After: direct NumPy copy |
-| --- | ---: | ---: |
-| Average main-process CPU utilization across six cores | 28.06% | **23.78%** |
-| Mean RGB frame-copy time (ms) | 6.17 | **3.16** |
+Relative change is `(after − before) / before × 100`, calculated from unrounded data. Negative latency changes mean faster; positive changes mean slower.
+
+| Measurement | Before: temporary buffer + NumPy copy | After: direct NumPy copy | Relative change |
+| --- | ---: | ---: | ---: |
+| Average main-process CPU utilization across six cores | 28.06% | **23.78%** | −15.2% |
+| Mean RGB frame-copy time (ms) | 6.17 | **3.16** | −48.8% |
 
 Observed mean frame-copy time fell **48.8%**, and frame-callback p50/p95/p99 fell **25.0% / 30.0% / 42.3%**. Main-process CPU fell **4.28 percentage points**, or **15.2% relative**. The after capture recorded **900 `cudaMemcpy2D` calls**, confirming that the new path ran.
 
