@@ -100,7 +100,8 @@ CPU measurements exclude the separate workers, and callback latency is not camer
 
 Capture: `vision-20260928-133010.nsys-rep` (an earlier RGB/shared-memory run).
 
-![Nsight timeline before the direct-to-NumPy change: RGB Frame Copy takes 4.261 ms, with cudaMemcpy visible in the CUDA API row.](assets/nsight/vision-20260928-133010-temporary-copy.png)
+<img width="1472" height="525" alt="image" src="https://github.com/user-attachments/assets/0c06dc00-ccbd-4040-bc08-094bd1ad645d" />
+
 
 This frame's `RGB Frame Copy` range spans **4.261 ms**, and the full `Frame Processing` callback spans **7.687 ms**. `Process CPU Frame` takes **2.788 ms**. The CUDA API row shows `cudaMemcpy`; the subsequent CPU-to-CPU NumPy copy is included in the frame-copy range but does not appear as a CUDA API call.
 
