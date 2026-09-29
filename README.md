@@ -90,10 +90,25 @@ Observed mean frame-copy time fell **48.8%**, and frame-callback p50/p95/p99 fel
 
 CPU measurements exclude the separate workers, and callback latency is not camera-to-browser latency. Scene and PTZ conditions were not controlled, so these runs do not isolate the change's causal effect. The [full direct-to-NumPy comparison](notes/direct-numpy-copy-comparison.md) includes sample counts, methods, limitations, and derived data.
 
-<img width="1478" height="503" alt="image" src="https://github.com/user-attachments/assets/45f38687-a382-4ce6-abca-c9bd05edea85" />
+### Frame-copy visual benchmarking log
 
-<img width="1477" height="504" alt="image" src="https://github.com/user-attachments/assets/73947f32-ff5e-41d3-ae36-cf5dc5a66776" />
+**Before — temporary CPU buffer followed by a NumPy copy**
 
+Capture: `vision-20260928-133010.nsys-rep` (an earlier RGB/shared-memory run).
+
+![Nsight timeline before the direct-to-NumPy change: RGB Frame Copy takes 4.261 ms, with cudaMemcpy visible in the CUDA API row.](assets/nsight/vision-20260928-133010-temporary-copy.png)
+
+This frame's `RGB Frame Copy` range spans **4.261 ms**, and the full `Frame Processing` callback spans **7.687 ms**. `Process CPU Frame` takes **2.788 ms**. The CUDA API row shows `cudaMemcpy`; the subsequent CPU-to-CPU NumPy copy is included in the frame-copy range but does not appear as a CUDA API call.
+
+**After — copy directly into the final NumPy array**
+
+Capture: `vision-20260928-185712-cpu-frames.nsys-rep`.
+
+![Nsight timeline after the direct-to-NumPy change: RGB Frame Copy takes 3.129 ms, with cudaMemcpy2D visible in the CUDA API row.](assets/nsight/vision-20260928-185712-direct-numpy.png)
+
+This frame's `RGB Frame Copy` range spans **3.129 ms**, and the full `Frame Processing` callback spans **6.373 ms**. `Process CPU Frame` takes **2.497 ms**. The CUDA API row shows `cudaMemcpy2D`, which copies the padded source rows into the final NumPy array.
+
+These screenshots illustrate individual frames at different timeline zoom levels, not averages or percentiles. Nested ranges should not be added together. The table above compares captures `182731` and `185712`; the before screenshot comes from the earlier `133010` capture and is not the source of the table's before statistics.
 
 ## TensorRT optimization level 3 vs 5
 
