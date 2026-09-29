@@ -11,6 +11,7 @@ This repository is my performance engineering portfolio: the results and decisio
 | CPU inference limited the YOLOv8n stream | Moved inference to PyTorch CUDA, then exported a TensorRT FP16 engine | **8.5 → 23.7 → 30.0 FPS** in the application stream; 30 FPS was the camera ceiling. |
 | CPU color conversion added cost to the browser/hand path | Earlier optimization: produced BGR frames directly on the GPU, removing the CPU’s BGRx-to-BGR conversion | **3.10 → 1.61 ms** for CPU frame mapping/color preparation in short live samples. |
 | Frame callbacks prepared compressed images for an asynchronous hand worker | Standardized the later pipeline on RGB, moved hand transfer to shared memory, and updated output encoders | Callback **p95: 16.66 → 13.25 ms**; main-process CPU across six cores **21.77% → 19.68%** in two 30-second captures. Worker CPU and total-system savings were not measured. |
+| Copying GPU frames created a temporary CPU buffer and then a second NumPy copy | Copied directly into the final NumPy array, using a 2D CUDA copy for padded rows | Mean frame-copy time **6.17 → 3.16 ms**; callback **p95: 19.09 → 13.37 ms**; main-process CPU **28.06% → 23.78%** in a later pair of 30-second captures. |
 | TensorRT builder settings had an unknown payoff | Built separate YOLO26s detector and pose plans at optimization levels 3 and 5, then benchmarked each | Level 5 gave **+8.9% detector** and **+6.9% pose** throughput in isolated 10-second `trtexec` runs. |
 | CPU-only local Qwen responses were slow | Built `llama-cpp-python` with CUDA and offloaded supported layers | One command prompt fell from **14.3 → 4.52 s**; a conversational sample fell from **14–18 → 6.44 s**. |
 
@@ -69,6 +70,26 @@ should not be added together. The table above compares captures `123919` and
 `130901`; the after screenshot illustrates the RGB path in the later `133010`
 capture and is not the source of that table's statistics.
 
+## Direct-to-NumPy frame copy
+
+After standardizing the pipeline on RGB, I noticed that the frame-copy helper still copied GPU pixels into a temporary CPU buffer, then copied them again into a NumPy array. I changed it to allocate the final NumPy array first and copy directly into its memory. Padded image rows use `cudaMemcpy2D` so the copy skips padding while preserving the pixels.
+
+The September 28 captures at **18:27:31 (before)** and **18:57:12 (after)** both used RGB/shared-memory processing with the CPU frame path enabled. This is a later comparison with its own baseline.
+
+| Measurement | Before: temporary buffer + NumPy copy — p50 / p95 / p99 (ms) | After: direct NumPy copy — p50 / p95 / p99 (ms) |
+| --- | ---: | ---: |
+| Frame callback | 9.63 / 19.09 / 29.67 | **7.22 / 13.37 / 17.13** |
+| RGB frame copy | 5.25 / 11.79 / 16.30 | **2.74 / 5.91 / 9.01** |
+
+| Measurement | Before: temporary buffer + NumPy copy | After: direct NumPy copy |
+| --- | ---: | ---: |
+| Average main-process CPU utilization across six cores | 28.06% | **23.78%** |
+| Mean RGB frame-copy time (ms) | 6.17 | **3.16** |
+
+Observed mean frame-copy time fell **48.8%**, and frame-callback p50/p95/p99 fell **25.0% / 30.0% / 42.3%**. Main-process CPU fell **4.28 percentage points**, or **15.2% relative**. The after capture recorded **900 `cudaMemcpy2D` calls**, confirming that the new path ran.
+
+CPU measurements exclude the separate workers, and callback latency is not camera-to-browser latency. Scene and PTZ conditions were not controlled, so these runs do not isolate the change's causal effect. The [full direct-to-NumPy comparison](notes/direct-numpy-copy-comparison.md) includes sample counts, methods, limitations, and derived data.
+
 ## TensorRT optimization level 3 vs 5
 
 I created a benchmarking script that automatically builds and compares FP16-capable YOLO26s pose and detector TensorRT plans across builder optimization levels. On the same Orin Nano with TensorRT 10.16.2, the script built level 3 and level 5 plans, ran each through trtexec for 10 seconds after a 1-second warm-up, collected latency and throughput metrics, and selected the faster plans locally. Build time is a one-time cost; the other columns measure isolated engine inference.
@@ -97,6 +118,6 @@ For voice, I moved Qwen into a separate warm service after loading it inside the
 - **Measurement context:** Stream FPS includes the enabled camera, inference, hand/pose, overlay, and encoding stages. The 30 FPS camera cap limits what a stream FPS result can show. The builder-level comparison measures each TensorRT engine alone, not the full DeepStream pipeline.
 - **Confidence:** These are measurements from one device. Many are short operational samples rather than repeated controlled trials. Power mode and clocks can affect comparisons; instantaneous GPU clocks were not recorded for every run.
 
-Read the [case studies](notes/case-studies.md) for the changes and tradeoffs, the [RGB/shared-memory comparison](notes/rgb-shared-memory-comparison.md) and [TensorRT level 3 versus 5 comparison](notes/tensorrt-builder-comparison.md) for full benchmark numbers, or the sanitized [May field log](notes/field-log.md) and [later stream log](notes/recent-stream-log.md) for the chronological record. Commands in the logs document the configuration at the time and may no longer match the current application.
+Read the [case studies](notes/case-studies.md) for the changes and tradeoffs, the [RGB/shared-memory comparison](notes/rgb-shared-memory-comparison.md), [direct-to-NumPy comparison](notes/direct-numpy-copy-comparison.md), and [TensorRT level 3 versus 5 comparison](notes/tensorrt-builder-comparison.md) for full benchmark numbers, or the sanitized [May field log](notes/field-log.md) and [later stream log](notes/recent-stream-log.md) for the chronological record. Commands in the logs document the configuration at the time and may no longer match the current application.
 
 The production application, model weights, TensorRT plans, recordings, and device-specific configuration are outside this notes repository. Local account paths and LAN addresses in the historical logs were replaced with documentation examples.

@@ -1,0 +1,170 @@
+{
+  "method": "Completed NVTX ranges inside capture window; NumPy linear percentiles. CPU: matched SCHED_EVENTS per thread and CPU, clipped to capture boundaries; divide scheduled seconds by duration and six cores. Main process only.",
+  "reports": [
+    {
+      "report": "vision-20260928-182731-cpu-frames.nsys-rep",
+      "duration_s": 30.0,
+      "cores": 6,
+      "cpu_by_pid": {
+        "23279": {
+          "cpu_time_s": 50.501743241,
+          "percent_six_cores": 28.05652402277778,
+          "busy_cores": 1.6833914413666666
+        }
+      },
+      "initial_clipped_intervals": 0,
+      "final_clipped_intervals": 4,
+      "pairing_anomalies": [],
+      "latency_ms": {
+        "Frame Processing": {
+          "n": 899,
+          "mean": 10.816869588431592,
+          "p50": 9.632544,
+          "p95": 19.089679999999984,
+          "p99": 29.6665472
+        },
+        "RGB Frame Copy": {
+          "n": 899,
+          "mean": 6.1744612235817575,
+          "p50": 5.247616,
+          "p95": 11.789318399999996,
+          "p99": 16.301808639999997
+        },
+        "Process CPU Frame": {
+          "n": 899,
+          "mean": 2.4726401779755287,
+          "p50": 2.102784,
+          "p95": 7.0843008,
+          "p99": 9.942952959999998
+        },
+        "Process Hand Frame": {
+          "n": 449,
+          "mean": 0.49815255233853,
+          "p50": 0.398432,
+          "p95": 0.8879935999999993,
+          "p99": 2.485708799999993
+        },
+        "MediaPipe Hand Inference": {
+          "n": 311,
+          "mean": 94.02877715755626,
+          "p50": 90.062688,
+          "p95": 122.36984000000001,
+          "p99": 144.67642239999998
+        }
+      },
+      "inference_enqueue_counts": [
+        [
+          23871,
+          898
+        ],
+        [
+          23910,
+          898
+        ]
+      ],
+      "pose_threads": [
+        23871
+      ],
+      "cuda_copy_api_counts": [
+        [
+          "cudaMemcpyAsync_v3020",
+          5389
+        ],
+        [
+          "cudaMemcpy_v3020",
+          1797
+        ]
+      ]
+    },
+    {
+      "report": "vision-20260928-185712-cpu-frames.nsys-rep",
+      "duration_s": 30.0,
+      "cores": 6,
+      "cpu_by_pid": {
+        "30047": {
+          "cpu_time_s": 42.803478832,
+          "percent_six_cores": 23.779710462222223,
+          "busy_cores": 1.4267826277333333
+        }
+      },
+      "initial_clipped_intervals": 1,
+      "final_clipped_intervals": 0,
+      "pairing_anomalies": [],
+      "latency_ms": {
+        "Frame Processing": {
+          "n": 900,
+          "mean": 7.692670222222222,
+          "p50": 7.222064,
+          "p95": 13.3720576,
+          "p99": 17.125771199999996
+        },
+        "RGB Frame Copy": {
+          "n": 900,
+          "mean": 3.1633020444444444,
+          "p50": 2.7417119999999997,
+          "p95": 5.9089263999999995,
+          "p99": 9.014114559999998
+        },
+        "Process CPU Frame": {
+          "n": 900,
+          "mean": 2.2489867022222225,
+          "p50": 2.136032,
+          "p95": 5.0379184,
+          "p99": 8.39113728
+        },
+        "Process Hand Frame": {
+          "n": 447,
+          "mean": 0.550790586129754,
+          "p50": 0.49504,
+          "p95": 0.7644895999999999,
+          "p99": 1.5887724800000056
+        },
+        "MediaPipe Hand Inference": {
+          "n": 350,
+          "mean": 82.48369106285713,
+          "p50": 86.285152,
+          "p95": 98.335984,
+          "p99": 106.40889759999999
+        }
+      },
+      "inference_enqueue_counts": [
+        [
+          30259,
+          900
+        ],
+        [
+          30262,
+          899
+        ]
+      ],
+      "pose_threads": [
+        30259
+      ],
+      "cuda_copy_api_counts": [
+        [
+          "cudaMemcpy2D_v3020",
+          900
+        ],
+        [
+          "cudaMemcpyAsync_v3020",
+          5400
+        ],
+        [
+          "cudaMemcpy_v3020",
+          900
+        ]
+      ]
+    }
+  ],
+  "scope": "Main stream process CPU only; frame callback latency excludes upstream inference and asynchronous output completion.",
+  "capture_settings": {
+    "cpu_frame_processing": true,
+    "gpu_metrics_frequency_hz": 1000,
+    "python_sampling_frequency_hz": 100
+  },
+  "limitations": [
+    "One capture per version; scene and PTZ conditions were not controlled.",
+    "Both reports warn that some CUDA and NVTX events may be missing.",
+    "CPU scheduling data excludes separate MediaPipe, recording, browser, and profiler processes."
+  ]
+}

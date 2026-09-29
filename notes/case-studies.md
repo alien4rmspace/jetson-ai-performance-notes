@@ -41,3 +41,11 @@ In the September 28 pipeline, DeepStream supplied RGB frames that the applicatio
 The replacement keeps live frames in RGB, retains the latest owned crop, and prepares raw shared memory when the hand worker is ready. Browser encoding uses an RGB-compatible JPEG interface; recording accepts RGB through GStreamer. Two approximately 30-second Nsight captures showed frame-callback p95 falling from 16.66 to 13.25 ms and main-process CPU falling from 21.77% to 19.68% of the six-core CPU. The hand-submission marker's median fell from 2.77 to 0.38 ms, although the proportion of calls eligible to prepare a frame differed.
 
 MediaPipe recognition showed no consistent latency improvement. Its median rose from 77.28 to 83.03 ms, while p95 fell from 122.33 to 119.92 ms. The captures did not contain scheduling data for the separate workers, and the recording encoder changed as part of the migration. The supported conclusion is reduced camera-callback cost and observed main-process CPU usage; total-system savings and causal attribution require a controlled comparison. The [full note and derived data](rgb-shared-memory-comparison.md) retain the measurement scopes and sample counts.
+
+## 8. Remove the second CPU copy when receiving GPU frames
+
+The RGB pipeline still copied each GPU frame into a temporary host buffer and then copied that buffer into an owned NumPy array. I allocated the final array first, copied contiguous tensors directly into it, and used `cudaMemcpy2D` for RGB surfaces with padded rows. The result still owns its memory after the source buffer is released. Unusual tensor layouts retain a fallback that uses a temporary buffer.
+
+In a later pair of 30-second captures, mean RGB frame-copy time fell from 6.17 to 3.16 ms. Frame-callback p50/p95/p99 changed from 9.63/19.09/29.67 ms to 7.22/13.37/17.13 ms, and main-process CPU across six cores fell from 28.06% to 23.78%. The new report recorded 900 2D CUDA copies. Tests checked padded and contiguous layouts, byte offsets, ownership, and errors, including real CUDA transfers.
+
+These observations cover the main process and synchronous callback. Separate worker CPU and camera-to-browser latency were not measured, and scene/PTZ conditions were not controlled. The [full comparison and derived data](direct-numpy-copy-comparison.md) preserve the evidence and calculation details.
